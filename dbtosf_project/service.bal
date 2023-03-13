@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/log;
 
 type Attributes record {
     string 'type;
