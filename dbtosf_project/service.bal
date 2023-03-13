@@ -83,7 +83,8 @@ service / on new http:Listener(9090) {
         return contactsOutput;
     }
 
-    // A resource for fetching contacts from salesforce
+    # A resource for fetching contacts from salesforce
+    # + return - Contacts collection or error
     resource function get contacts() returns ContactsOutput|error? {
         salesforce:SoqlResult|salesforce:Error soqlResult = salesforceEp->getQueryResult(SALESFORCE_QUERY_FOR_CONTACTS);
         if (soqlResult is salesforce:SoqlResult) {

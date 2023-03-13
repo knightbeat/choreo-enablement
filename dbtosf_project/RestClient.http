@@ -1,0 +1,71 @@
+### YOUR SALESFORCE CREDENTIALS TO GENERATE AN ACCESS TOKEN
+@sf_user=<your salesforce devleoper account user>
+@sf_password=<your salesforce devleoper account password>
+@sf_client_id=<client key of your salesforce Connected App>
+@sf_client_secret=<client sercret of your salesforce Connected App>
+
+### GENERATES AN ACCESS TOKEN FOR SALESFORCE
+# @name createToken
+POST https://login.salesforce.com/services/oauth2/token 
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id={{sf_client_id}}&client_secret={{sf_client_secret}}&username={{sf_user}}&password={{sf_password}}
+
+
+### PRESERVES THE SALESFORCE ACCESS TOKEN IN THE REST CLIENT CONTEXT
+@sf_token={{createToken.response.body.access_token}}
+
+### PRESERVES YOUR SALESFORCE INSTANCE URL IN THE REST CLIENT CONTEXT
+@sf_instance_url={{createToken.response.body.instance_url}}
+
+### CHECKS THE AVAILABLE API VERSIONS. PICK THE LASTEST AND SET @sf_api_version=56.0 BELOW ACCORDINGLY
+GET {{sf_instance_url}}/services/data
+Authorization: Bearer {{sf_token}}
+
+### SALESFORCE API VERSION OF YOUR CHOICE
+@sf_api_version=56.0
+
+### LIST ALL EXISTING CONTACTS IN SALESFORCE BY QUERY
+GET {{sf_instance_url}}/services/data/v{{sf_api_version}}/query?q=SELECT Id,FirstName,LastName,Email,Phone FROM Contact
+Content-Type: application/json
+Authorization: Bearer {{sf_token}}
+
+
+
+
+
+
+
+
+### CREATE AN ACCOUNT OBJECT IN SALESFORCE RECORDS
+# @name createAccount
+POST {{sf_instance_url}}/services/data/v{{sf_api_version}}/sobjects/Account
+Content-Type: application/json
+Authorization: Bearer {{sf_token}}
+
+{
+    "Name":"WSO2 Choreo Demo"
+}
+
+### PRESERVES THE ACCOUNT ID OF THE CREATED ACCOUNT
+@sf_account_id={{createAccount.response.body.$.id}}
+
+### CREATE A CONTACT OBJECT IN SALESFORCE RECORDS UNDER THE PREVIOUSLY CREATED ACCOUNT
+POST {{sf_instance_url}}/services/data/v{{sf_api_version}}/sobjects/Contact
+Content-Type: application/json
+Authorization: Bearer {{sf_token}}
+
+{
+    "FirstName": "Jessy",
+    "LastName": "Pinkman",
+    "AccountId": "{{sf_account_id}}",
+    "Title": "Mr",
+    "Email": "jessey@demoteam.com",
+    "Phone": "+447428254632"
+}
+
+### DEMO
+
+
+
+
