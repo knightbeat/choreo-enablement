@@ -59,11 +59,10 @@ service / on new http:Listener(9090) {
     }
 
     # A resource for transforming contacts
-    # + caller - the caller endpoint
     # + contactsInput - the input contacts
     # + return - transformed contacts or error
-    resource function post contacts(http:Caller caller, @http:Payload ContactsInput contactsInput) returns ContactsOutput|error? {
+    resource function post contacts(@http:Payload ContactsInput contactsInput) returns ContactsOutput|error? {
         ContactsOutput contactsOutput = transform(contactsInput);
-        check caller->respond(contactsOutput);
+        return contactsOutput;
     }
 }
