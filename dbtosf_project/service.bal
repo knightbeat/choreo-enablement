@@ -1,3 +1,4 @@
+import ballerinax/salesforce;
 import ballerina/http;
 
 type Attributes record {
@@ -7,8 +8,8 @@ type Attributes record {
 
 type ContactsItem record {
     string fullName;
-    string phoneNumber;
-    string email;
+    (anydata|string)? phoneNumber;
+    (anydata|string)? email;
     string id;
 };
 
@@ -22,8 +23,8 @@ type RecordsItem record {
     string Id;
     string FirstName;
     string LastName;
-    string Email;
-    string Phone;
+    (anydata|string)? Email;
+    (anydata|string)? Phone;
 };
 
 type ContactsInput record {
@@ -43,6 +44,22 @@ function transform(ContactsInput contactsInput) returns ContactsOutput => {
         }
 };
 
+type SalesforceConfig record {|
+    string baseUrl;
+    string token;
+|};
+
+configurable SalesforceConfig sfConfig = ?;
+
+salesforce:Client salesforceEp = check new (config = {
+    baseUrl: sfConfig.baseUrl,
+    auth: {
+        token: sfConfig.token
+    }
+});
+
+const string SALESFORCE_QUERY_FOR_CONTACTS = "SELECT Id,FirstName,LastName,Email,Phone FROM Contact";
+
 # A service representing a network-accessible API
 # bound to port `9090`.
 service / on new http:Listener(9090) {
@@ -59,10 +76,28 @@ service / on new http:Listener(9090) {
     }
 
     # A resource for transforming contacts
-    # + contactsInput - the input contacts
-    # + return - transformed contacts or error
+    # + contactsInput - The request payload with records to create Contacts
+    # + return - Transformed Contacts collection or error
     resource function post contacts(@http:Payload ContactsInput contactsInput) returns ContactsOutput|error? {
         ContactsOutput contactsOutput = transform(contactsInput);
         return contactsOutput;
+    }
+
+    // A resource for fetching contacts from salesforce
+    resource function get contacts() returns ContactsOutput|error? {
+        salesforce:SoqlResult|salesforce:Error soqlResult = salesforceEp->getQueryResult(SALESFORCE_QUERY_FOR_CONTACTS);
+        if (soqlResult is salesforce:SoqlResult) {
+
+            json results = soqlResult.toJson();
+
+            ContactsInput salesforceContactsResponse = check results.cloneWithType(ContactsInput);
+
+            ContactsOutput contacts = transform(salesforceContactsResponse);
+
+            return contacts;
+
+        } else {
+            return error(soqlResult.message());
+        }
     }
 }
