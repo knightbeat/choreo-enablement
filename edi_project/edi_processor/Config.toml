@@ -1,0 +1,10 @@
+[ftpParamsConfig]
+host = "localhost"
+port = 21
+path = "/Users/ck/ftp/in"
+username = "wso2"
+password = "wso2123"
+
+[httpEndpointsParamsConfig]
+dssEndpoint = "http://localhost:8290"
+notificationsEndpoint = "https://webhook.site"
