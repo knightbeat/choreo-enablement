@@ -1,0 +1,18 @@
+GET http://chathurak.local:8290/services/ContactsDataService/contacts/max@demoteam.com
+Accept: application/json
+
+###
+GET http://chathurak.local:8290/services/ContactsDataService/contacts
+Accept: application/xml
+
+###
+POST http://localhost:8290/services/ItemsDataService/items
+Content-Type: text/javascript
+
+{
+  "_postitems": {
+    "code": "ITM",
+    "item": "T-46",
+    "quantity": 28
+  }
+}

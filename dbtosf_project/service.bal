@@ -101,4 +101,9 @@ service / on new http:Listener(9090) {
             return error(soqlResult.message());
         }
     }
+
+    resource function get checkStatus () returns http:Forbidden|error? {
+        http:Forbidden ok = {body: "Hello, World!"};
+        return ok;
+    }
 }
